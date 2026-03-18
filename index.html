@@ -1,0 +1,1158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>HIKA · HiFly Knowledge Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
+<style>
+:root {
+  --navy:      #0f2a52;
+  --navy-mid:  #1a3f7a;
+  --blue:      #2563b0;
+  --sky:       #4fa3e3;
+  --sky-light: #b8dcf5;
+  --sky-pale:  #eaf5fd;
+  --white:     #ffffff;
+  --off:       #f7fafd;
+  --ink:       #0d1f35;
+  --ink-mid:   #3d5472;
+  --ink-soft:  #7a95b0;
+  --line:      #e0ecf7;
+  --green:     #16a34a;
+  --amber:     #d97706;
+  --red:       #dc2626;
+  --dw-teal:   #4fa3e3;
+
+  --font-body:  'Plus Jakarta Sans', sans-serif;
+  --font-serif: 'Instrument Serif', serif;
+  --r:    10px;
+  --r-sm: 6px;
+  --shadow:    0 1px 3px rgba(15,42,82,.07), 0 4px 16px rgba(15,42,82,.05);
+  --shadow-md: 0 2px 8px rgba(15,42,82,.10), 0 8px 32px rgba(15,42,82,.07);
+}
+
+*, *::before, *::after { margin:0; padding:0; box-sizing:border-box; }
+html, body { height:100%; overflow:hidden; }
+
+body {
+  font-family: var(--font-body);
+  background: var(--navy);
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  font-size: 14px;
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ─── TOP NAV ─── */
+.topnav {
+  height: 54px;
+  background: var(--navy);
+  display: flex;
+  align-items: center;
+  padding: 0 20px;
+  flex-shrink: 0;
+  border-bottom: 1px solid rgba(255,255,255,.08);
+  gap: 0;
+}
+
+/* HiFly wordmark — italic serif matching report */
+.wordmark {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  margin-right: 10px;
+  flex-shrink: 0;
+}
+.wm-hifly {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: 21px;
+  letter-spacing: -.2px;
+  line-height: 1;
+}
+.wm-hi  { color: var(--white); }
+.wm-fly { color: var(--sky); }
+
+.wm-divider {
+  width: 1px;
+  height: 18px;
+  background: rgba(255,255,255,.18);
+  margin: 0 14px;
+}
+
+/* DataWings CoP badge */
+.dw-badge {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  background: rgba(79,163,227,.13);
+  border: 1px solid rgba(79,163,227,.25);
+  border-radius: 20px;
+  padding: 4px 11px 4px 7px;
+}
+/* DataWings SVG logo (inline, simplified from report) */
+.dw-logo-svg { flex-shrink: 0; }
+.dw-name {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 700;
+  color: rgba(255,255,255,.75);
+  letter-spacing: .2px;
+}
+.dw-name span { color: var(--sky); }
+
+.wm-hika {
+  font-family: var(--font-body);
+  font-size: 10.5px;
+  font-weight: 600;
+  letter-spacing: 2.5px;
+  text-transform: uppercase;
+  color: rgba(255,255,255,.35);
+  margin-left: 14px;
+}
+
+/* Nav tabs */
+.nav-tabs { display: flex; gap: 2px; margin-left: auto; }
+.nav-tab {
+  padding: 8px 15px;
+  font-size: 12.5px;
+  font-weight: 500;
+  color: rgba(255,255,255,.42);
+  cursor: pointer;
+  border-radius: var(--r-sm);
+  transition: all .18s;
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.nav-tab:hover { color: rgba(255,255,255,.78); background: rgba(255,255,255,.07); }
+.nav-tab.active { color: var(--white); background: rgba(79,163,227,.18); }
+
+/* ─── SHELL ─── */
+.shell { flex:1; display:flex; overflow:hidden; background: var(--off); }
+
+/* ─── SCREENS ─── */
+.screen { display:none; flex:1; overflow:hidden; }
+.screen.on { display:flex; }
+
+/* ══════════════════════════════
+   SCREEN 0 · CHAT
+══════════════════════════════ */
+.chat-screen { flex-direction: row; }
+
+.sidebar {
+  width: 220px;
+  background: var(--white);
+  border-right: 1px solid var(--line);
+  display: flex;
+  flex-direction: column;
+  flex-shrink: 0;
+  overflow-y: auto;
+}
+
+/* DataWings CoP header in sidebar */
+.sidebar-cop-header {
+  padding: 16px 16px 12px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  gap: 9px;
+}
+.dw-sidebar-logo {
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  background: linear-gradient(135deg, var(--navy), var(--sky));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.sidebar-cop-text { flex:1; min-width:0; }
+.sidebar-cop-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--navy);
+  line-height: 1.2;
+}
+.sidebar-cop-name span { color: var(--sky); }
+.sidebar-cop-sub {
+  font-size: 10.5px;
+  color: var(--ink-soft);
+  margin-top: 1px;
+}
+
+.sidebar-section { padding: 14px 0 6px; }
+.sidebar-label {
+  padding: 0 14px 5px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.1px;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+.sidebar-item {
+  padding: 6px 14px;
+  font-size: 13px;
+  font-weight: 500;
+  color: var(--ink-mid);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  position: relative;
+  transition: background .12s, color .12s;
+}
+.sidebar-item:hover { background: var(--sky-pale); color: var(--navy-mid); }
+.sidebar-item.active {
+  background: var(--sky-pale);
+  color: var(--navy);
+  font-weight: 600;
+}
+.sidebar-item.active::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  width: 3px;
+  height: 26px;
+  background: var(--sky);
+  border-radius: 0 3px 3px 0;
+}
+.s-icon { font-size: 14px; width: 18px; text-align: center; flex-shrink: 0; }
+.sidebar-divider { height: 1px; background: var(--line); margin: 6px 0; }
+
+/* Online indicators */
+.s-online { width:7px; height:7px; border-radius:50%; flex-shrink:0; margin-left:auto; }
+.s-online.green { background:#22c55e; }
+.s-online.grey  { background:#cbd5e1; }
+
+/* Chat main */
+.chat-main { flex:1; display:flex; flex-direction:column; overflow:hidden; background:var(--white); }
+
+.chat-topbar {
+  height: 54px;
+  border-bottom: 1px solid var(--line);
+  display: flex;
+  align-items: center;
+  padding: 0 22px;
+  gap: 11px;
+  flex-shrink: 0;
+}
+.hika-pill {
+  width: 34px; height: 34px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--navy) 0%, var(--sky) 100%);
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 11px; color: white; letter-spacing:.5px;
+  flex-shrink: 0;
+}
+.chat-topbar-info h4 {
+  font-size: 14px; font-weight: 700; color: var(--ink);
+  display: flex; align-items: center; gap: 7px;
+}
+.chat-topbar-info p {
+  font-size: 11px; color: var(--ink-soft); margin-top: 1px;
+  display: flex; align-items: center; gap: 5px;
+}
+.online-dot { width:6px; height:6px; border-radius:50%; background:#22c55e; flex-shrink:0; }
+.chip {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 2px 8px; border-radius: 20px;
+  font-size: 10.5px; font-weight: 600; letter-spacing:.2px;
+}
+.chip-ai  { background: var(--sky-pale); color: var(--blue); border: 1px solid var(--sky-light); }
+.chip-cop { background: #f0fdf4; color: #15803d; border: 1px solid #bbf7d0; }
+
+/* Messages */
+.messages {
+  flex:1; overflow-y:auto; padding: 26px 26px 14px;
+  display:flex; flex-direction:column; gap:18px;
+  scrollbar-width: thin; scrollbar-color: var(--line) transparent;
+}
+.msg-row { display:flex; gap:10px; }
+.msg-row.mine { flex-direction:row-reverse; }
+.avatar {
+  width:30px; height:30px; border-radius:50%; flex-shrink:0;
+  display:flex; align-items:center; justify-content:center;
+  font-size:11px; font-weight:700; margin-top:2px;
+}
+.av-hika { background: linear-gradient(135deg, var(--navy), var(--sky)); color:white; }
+.av-user { background: linear-gradient(135deg, #5b21b6, #8b5cf6); color:white; }
+.msg-body { max-width:72%; display:flex; flex-direction:column; gap:3px; }
+.msg-row.mine .msg-body { align-items:flex-end; }
+.bubble {
+  padding: 12px 15px;
+  border-radius: 3px 13px 13px 13px;
+  font-size: 13.5px; line-height: 1.6;
+  color: var(--ink); background: var(--off);
+  border: 1px solid var(--line);
+}
+.msg-row.mine .bubble {
+  background: var(--navy); color: white;
+  border-color: transparent;
+  border-radius: 13px 3px 13px 13px;
+}
+.bubble strong { color: var(--navy); }
+.msg-row.mine .bubble strong { color: var(--sky-light); }
+.bubble-meta { font-size:10.5px; color:var(--ink-soft); padding:0 3px; }
+
+.inline-note {
+  margin-top:10px; display:flex; gap:8px;
+  background:#fffbeb; border:1px solid #fde68a;
+  border-radius:var(--r-sm); padding:9px 12px;
+  font-size:12px; color:#78350f; line-height:1.45;
+}
+.note-icon { flex-shrink:0; font-size:13px; margin-top:1px; }
+
+.esc-card {
+  margin-top:12px; background:var(--white);
+  border:1px solid var(--line); border-left:3px solid var(--sky);
+  border-radius:var(--r); padding:13px 15px;
+}
+.esc-card-title {
+  font-size:11px; font-weight:700; letter-spacing:.8px;
+  text-transform:uppercase; color:var(--ink-soft); margin-bottom:8px;
+}
+.esc-person { display:flex; align-items:center; gap:10px; }
+.av-esc {
+  width:30px; height:30px; border-radius:50%;
+  background:linear-gradient(135deg,#059669,#34d399);
+  color:white; display:flex; align-items:center;
+  justify-content:center; font-size:11px; font-weight:700; flex-shrink:0;
+}
+.esc-name { font-size:13px; font-weight:600; color:var(--ink); }
+.esc-role { font-size:11px; color:var(--ink-soft); }
+.esc-btn {
+  margin-left:auto; padding:5px 13px; font-size:12px; font-weight:600;
+  font-family:var(--font-body); background:var(--sky-pale); color:var(--blue);
+  border:1px solid var(--sky-light); border-radius:var(--r-sm); cursor:pointer;
+}
+.esc-btn:hover { background:var(--sky-light); }
+
+.input-bar { padding:15px 22px; border-top:1px solid var(--line); background:var(--white); flex-shrink:0; }
+.input-wrap {
+  display:flex; align-items:center; gap:10px;
+  border:1.5px solid var(--line); border-radius:var(--r);
+  padding:10px 14px; background:var(--off); transition:border-color .18s, box-shadow .18s;
+}
+.input-wrap:focus-within { border-color:var(--sky); box-shadow:0 0 0 3px rgba(79,163,227,.12); }
+.input-wrap input {
+  flex:1; border:none; background:transparent;
+  font-family:var(--font-body); font-size:13.5px; color:var(--ink); outline:none;
+}
+.input-wrap input::placeholder { color:var(--ink-soft); }
+.send {
+  width:30px; height:30px; border-radius:var(--r-sm);
+  background:var(--navy); border:none; cursor:pointer;
+  color:white; display:flex; align-items:center; justify-content:center;
+  font-size:13px; transition:background .15s; flex-shrink:0;
+}
+.send:hover { background:var(--blue); }
+
+/* ══════════════════════════════
+   SHARED PAGE LAYOUT
+══════════════════════════════ */
+.page-screen { flex-direction:column; background:var(--off); }
+
+.page-header {
+  background:var(--white); border-bottom:1px solid var(--line);
+  padding:20px 30px; display:flex; align-items:flex-start;
+  justify-content:space-between; flex-shrink:0;
+}
+.page-header-text h2 { font-size:19px; font-weight:700; color:var(--ink); letter-spacing:-.3px; }
+.page-header-text p { font-size:12.5px; color:var(--ink-soft); margin-top:3px; }
+.hdr-actions { display:flex; gap:10px; align-items:center; }
+.btn {
+  padding:9px 16px; border-radius:var(--r-sm); font-size:13px; font-weight:600;
+  font-family:var(--font-body); cursor:pointer; transition:all .15s;
+  display:flex; align-items:center; gap:6px; border:none;
+}
+.btn-ghost { background:var(--white); color:var(--ink-mid); border:1.5px solid var(--line); }
+.btn-ghost:hover { border-color:var(--sky); color:var(--blue); }
+.btn-solid { background:var(--navy); color:white; }
+.btn-solid:hover { background:var(--blue); }
+
+.page-body { flex:1; overflow-y:auto; padding:26px 30px; }
+
+/* Stat cards */
+.stat-grid { display:grid; grid-template-columns:repeat(4,1fr); gap:14px; margin-bottom:26px; }
+.stat-card {
+  background:var(--white); border:1px solid var(--line);
+  border-radius:var(--r); padding:18px 20px; box-shadow:var(--shadow);
+}
+.stat-label {
+  font-size:11px; font-weight:700; letter-spacing:.8px;
+  text-transform:uppercase; color:var(--ink-soft); margin-bottom:5px;
+}
+.stat-val {
+  font-family:var(--font-serif); font-size:31px;
+  color:var(--navy); line-height:1; margin-bottom:4px;
+}
+.stat-sub { font-size:12px; color:var(--ink-soft); }
+.stat-sub.up { color:var(--green); }
+.stat-sub.warn { color:var(--amber); }
+
+.sec-head { display:flex; align-items:center; gap:10px; margin-bottom:13px; }
+.sec-head h3 { font-size:13.5px; font-weight:700; color:var(--ink); letter-spacing:-.1px; }
+.pill-count { padding:2px 8px; border-radius:20px; font-size:11px; font-weight:700; }
+.pill-amber { background:#fef3c7; color:#92400e; }
+.pill-red   { background:#fee2e2; color:#991b1b; }
+.pill-blue  { background:var(--sky-pale); color:var(--blue); }
+
+/* Table */
+.data-table-wrap {
+  background:var(--white); border:1px solid var(--line);
+  border-radius:var(--r); overflow:hidden;
+  box-shadow:var(--shadow); margin-bottom:26px;
+}
+table { width:100%; border-collapse:collapse; }
+thead { background:var(--off); }
+th {
+  padding:10px 15px; text-align:left;
+  font-size:11px; font-weight:700; letter-spacing:.6px;
+  text-transform:uppercase; color:var(--ink-soft);
+  border-bottom:1px solid var(--line); white-space:nowrap;
+}
+td {
+  padding:12px 15px; font-size:13px; color:var(--ink);
+  border-bottom:1px solid var(--line); vertical-align:middle;
+}
+tr:last-child td { border-bottom:none; }
+tbody tr:hover td { background:var(--sky-pale); }
+.td-title { font-weight:600; color:var(--ink); font-size:13px; }
+.td-sub { font-size:11.5px; color:var(--ink-soft); margin-top:2px; font-weight:400; }
+
+.cat-tag { display:inline-block; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; }
+.cat-ops   { background:#dbeafe; color:#1d4ed8; }
+.cat-admin { background:#dcfce7; color:#15803d; }
+.cat-war   { background:#fef3c7; color:#92400e; }
+.cat-glos  { background:#f3e8ff; color:#7c3aed; }
+
+.status-tag { display:inline-flex; align-items:center; gap:5px; padding:3px 9px; border-radius:20px; font-size:11px; font-weight:600; }
+.st-dot { width:5px; height:5px; border-radius:50%; background:currentColor; }
+.st-ok   { background:#dcfce7; color:#16a34a; }
+.st-pend { background:#fef9c3; color:#a16207; }
+.st-flag { background:#fee2e2; color:#b91c1c; }
+
+.row-actions { display:flex; gap:6px; }
+.ra {
+  padding:4px 10px; border-radius:var(--r-sm); font-size:12px; font-weight:600;
+  font-family:var(--font-body); cursor:pointer; border:1.5px solid var(--line);
+  background:transparent; color:var(--ink-soft); transition:all .13s;
+}
+.ra:hover { border-color:var(--blue); color:var(--blue); }
+.ra.ok { border-color:#bbf7d0; color:var(--green); }
+.ra.ok:hover { background:var(--green); color:white; border-color:var(--green); }
+.ra.del { border-color:#fecaca; color:var(--red); }
+.ra.del:hover { background:var(--red); color:white; border-color:var(--red); }
+
+/* ══════════════════════════════
+   SCREEN 2 · ANALYTICS
+══════════════════════════════ */
+.charts-grid { display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:22px; }
+.chart-card {
+  background:var(--white); border:1px solid var(--line);
+  border-radius:var(--r); padding:20px 22px 18px; box-shadow:var(--shadow);
+}
+.chart-card h3 { font-size:13px; font-weight:700; color:var(--ink); margin-bottom:16px; }
+.bars { display:flex; flex-direction:column; gap:11px; }
+.bar-row { display:flex; align-items:center; gap:11px; }
+.bar-lbl { font-size:12px; color:var(--ink-soft); width:146px; flex-shrink:0; text-align:right; }
+.bar-track { flex:1; height:20px; background:var(--off); border-radius:5px; overflow:hidden; border:1px solid var(--line); }
+.bar-fill { height:100%; border-radius:5px; display:flex; align-items:center; padding-left:8px; font-size:11px; font-weight:700; color:white; }
+.bf-ops   { background:linear-gradient(90deg,var(--navy),var(--blue)); }
+.bf-admin { background:linear-gradient(90deg,#059669,#34d399); }
+.bf-war   { background:linear-gradient(90deg,#b45309,#f59e0b); }
+.bf-esc   { background:linear-gradient(90deg,#6b7280,#9ca3af); }
+.bar-pct  { font-size:12px; color:var(--ink-soft); width:30px; flex-shrink:0; font-weight:600; }
+
+.donut-wrap { display:flex; align-items:center; justify-content:center; gap:26px; }
+.legend { display:flex; flex-direction:column; gap:9px; }
+.legend-row { display:flex; align-items:center; gap:8px; font-size:12.5px; color:var(--ink-mid); }
+.ld { width:9px; height:9px; border-radius:2px; flex-shrink:0; }
+
+.gaps-card {
+  background:var(--white); border:1px solid var(--line);
+  border-radius:var(--r); overflow:hidden; box-shadow:var(--shadow); margin-bottom:22px;
+}
+.gap-row {
+  display:flex; align-items:center; gap:14px;
+  padding:13px 20px; border-bottom:1px solid var(--line); transition:background .12s;
+}
+.gap-row:last-child { border-bottom:none; }
+.gap-row:hover { background:var(--sky-pale); }
+.gap-ico { width:34px; height:34px; border-radius:var(--r-sm); background:#fef3c7; display:flex; align-items:center; justify-content:center; font-size:16px; flex-shrink:0; }
+.gap-text { flex:1; }
+.gap-title { font-size:13px; font-weight:600; color:var(--ink); }
+.gap-desc  { font-size:12px; color:var(--ink-soft); margin-top:2px; }
+.gap-count { font-size:12.5px; font-weight:700; color:var(--amber); white-space:nowrap; }
+.gap-cta {
+  padding:5px 12px; border-radius:var(--r-sm); font-size:12px; font-weight:600;
+  font-family:var(--font-body); background:var(--sky-pale); color:var(--blue);
+  border:1px solid var(--sky-light); cursor:pointer; white-space:nowrap;
+}
+.gap-cta:hover { background:var(--sky-light); }
+
+/* ══════════════════════════════
+   SCREEN 3 · BUSINESS GLOSSARY
+══════════════════════════════ */
+.glossary-search-bar {
+  display:flex; align-items:center; gap:12px;
+  background:var(--white); border-bottom:1px solid var(--line);
+  padding:14px 30px; flex-shrink:0;
+}
+.glos-search-wrap {
+  display:flex; align-items:center; gap:9px;
+  flex:1; max-width:480px;
+  border:1.5px solid var(--line); border-radius:var(--r);
+  padding:9px 14px; background:var(--off);
+  transition:border-color .18s;
+}
+.glos-search-wrap:focus-within { border-color:var(--sky); }
+.glos-search-wrap input {
+  flex:1; border:none; background:transparent;
+  font-family:var(--font-body); font-size:13.5px; color:var(--ink); outline:none;
+}
+.glos-search-wrap input::placeholder { color:var(--ink-soft); }
+.glos-filters { display:flex; gap:7px; margin-left:12px; flex-wrap:wrap; }
+.filter-pill {
+  padding:5px 12px; border-radius:20px; font-size:12px; font-weight:600;
+  border:1.5px solid var(--line); background:var(--white); color:var(--ink-soft);
+  cursor:pointer; transition:all .13s; font-family:var(--font-body);
+}
+.filter-pill.active, .filter-pill:hover {
+  background:var(--sky-pale); border-color:var(--sky); color:var(--blue);
+}
+
+.glossary-body { flex:1; overflow-y:auto; padding:22px 30px; }
+
+/* Glossary letter group */
+.letter-group { margin-bottom:22px; }
+.letter-anchor {
+  font-family:var(--font-serif); font-style:italic;
+  font-size:26px; color:var(--sky); font-weight:400;
+  border-bottom:2px solid var(--line); padding-bottom:6px;
+  margin-bottom:12px; display:block;
+}
+.glossary-entries { display:flex; flex-direction:column; gap:8px; }
+.glossary-entry {
+  background:var(--white); border:1px solid var(--line);
+  border-radius:var(--r); padding:14px 18px;
+  box-shadow:var(--shadow); transition:border-color .15s;
+  display:flex; gap:16px; align-items:flex-start;
+}
+.glossary-entry:hover { border-color:var(--sky-light); }
+.entry-left { flex:1; min-width:0; }
+.entry-term {
+  font-size:14px; font-weight:700; color:var(--navy);
+  display:flex; align-items:center; gap:8px; flex-wrap:wrap;
+}
+.entry-definition {
+  font-size:13px; line-height:1.6; color:var(--ink-mid);
+  margin-top:5px;
+}
+.entry-example {
+  margin-top:7px; font-size:12px; color:var(--ink-soft);
+  background:var(--sky-pale); border-radius:var(--r-sm);
+  padding:6px 10px; border-left:2px solid var(--sky-light);
+  font-style:italic;
+}
+.entry-meta {
+  display:flex; flex-direction:column; align-items:flex-end;
+  gap:6px; flex-shrink:0; min-width:120px;
+}
+.entry-source { font-size:11px; color:var(--ink-soft); text-align:right; }
+.entry-validated {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:11px; font-weight:600; color:var(--green);
+  background:#f0fdf4; border:1px solid #bbf7d0;
+  padding:2px 8px; border-radius:20px;
+}
+.entry-pending {
+  display:inline-flex; align-items:center; gap:4px;
+  font-size:11px; font-weight:600; color:var(--amber);
+  background:#fef9c3; border:1px solid #fde68a;
+  padding:2px 8px; border-radius:20px;
+}
+
+/* scrollbar */
+::-webkit-scrollbar { width:5px; }
+::-webkit-scrollbar-track { background:transparent; }
+::-webkit-scrollbar-thumb { background:var(--line); border-radius:20px; }
+</style>
+</head>
+<body>
+
+<!-- TOP NAV -->
+<nav class="topnav">
+  <!-- HiFly italic serif wordmark matching report -->
+  <div class="wordmark">
+    <span class="wm-hifly"><span class="wm-hi">Hi</span><span class="wm-fly">fly</span></span>
+  </div>
+
+  <!-- DataWings CoP badge -->
+  <div class="dw-badge">
+    <!-- Simplified DataWings inline SVG logo -->
+    <svg class="dw-logo-svg" width="22" height="14" viewBox="0 0 44 28" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M2 22 C8 10, 18 4, 28 8 C20 10, 14 16, 12 22 Z" fill="#4fa3e3" opacity=".9"/>
+      <path d="M12 22 C16 12, 26 7, 38 10 C30 13, 22 18, 20 24 Z" fill="#4fa3e3" opacity=".55"/>
+      <path d="M28 8 Q36 6 42 14 Q36 12 30 16 Z" fill="white" opacity=".7"/>
+    </svg>
+    <span class="dw-name"><span>Data</span>Wings</span>
+  </div>
+
+  <span class="wm-hika">HIKA</span>
+
+  <div class="nav-tabs">
+    <div class="nav-tab active" onclick="show(0,this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Chat
+    </div>
+    <div class="nav-tab" onclick="show(1,this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/></svg>
+      Knowledge Curation
+    </div>
+    <div class="nav-tab" onclick="show(2,this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+      Weekly Analytics
+    </div>
+    <div class="nav-tab" onclick="show(3,this)">
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg>
+      Business Glossary
+    </div>
+  </div>
+</nav>
+
+<div class="shell">
+
+<!-- ══ SCREEN 0: CHAT ══ -->
+<div class="screen chat-screen on" id="s0">
+  <div class="sidebar">
+    <!-- DataWings CoP identity header -->
+    <div class="sidebar-cop-header">
+      <div class="dw-sidebar-logo">
+        <svg width="16" height="11" viewBox="0 0 44 28" fill="none">
+          <path d="M2 22 C8 10, 18 4, 28 8 C20 10, 14 16, 12 22 Z" fill="white" opacity=".9"/>
+          <path d="M12 22 C16 12, 26 7, 38 10 C30 13, 22 18, 20 24 Z" fill="white" opacity=".55"/>
+        </svg>
+      </div>
+      <div class="sidebar-cop-text">
+        <div class="sidebar-cop-name"><span>Data</span>Wings CoP</div>
+        <div class="sidebar-cop-sub">Hi Fly · 7 members</div>
+      </div>
+    </div>
+
+    <div class="sidebar-section">
+      <div class="sidebar-label">Channels</div>
+      <div class="sidebar-item active"><span class="s-icon">✦</span> HIKA Assistant</div>
+      <div class="sidebar-item"><span class="s-icon">#</span> general</div>
+      <div class="sidebar-item"><span class="s-icon">#</span> analytics-team</div>
+      <div class="sidebar-item"><span class="s-icon">#</span> ops-knowledge</div>
+    </div>
+    <div class="sidebar-divider"></div>
+    <div class="sidebar-section">
+      <!-- Real team names from the report -->
+      <div class="sidebar-label">CoP Members</div>
+      <div class="sidebar-item"><span class="s-icon">◈</span> Diana Leite <span class="s-online green"></span></div>
+      <div class="sidebar-item"><span class="s-icon">◈</span> Maria Cetra <span class="s-online green"></span></div>
+      <div class="sidebar-item"><span class="s-icon">◈</span> João Cortiçadas <span class="s-online grey"></span></div>
+      <div class="sidebar-item"><span class="s-icon">◈</span> Joana Gomes <span class="s-online green"></span></div>
+      <div class="sidebar-item"><span class="s-icon">◈</span> Samuel Lagos <span class="s-online grey"></span></div>
+    </div>
+  </div>
+
+  <div class="chat-main">
+    <div class="chat-topbar">
+      <div class="hika-pill">HK</div>
+      <div class="chat-topbar-info">
+        <h4>HIKA <span class="chip chip-ai">AI-Augmented</span> <span class="chip chip-cop">CoP Curated</span></h4>
+        <p><span class="online-dot"></span> Online · Hi Fly Knowledge Assistant · Always verify safety-critical decisions with a CoP member</p>
+      </div>
+    </div>
+
+    <div class="messages">
+
+      <div class="msg-row">
+        <div class="avatar av-hika">HK</div>
+        <div class="msg-body">
+          <div class="bubble">
+            Hello, and welcome to <strong>HIKA</strong> — Hi Fly's Knowledge Assistant, curated by the <strong>DataWings</strong> Community of Practice.<br><br>
+            I can help you with <strong>operational & analytics guidance</strong>, <strong>HR and administrative queries</strong>, and surfacing <strong>institutional knowledge</strong> from experienced colleagues. How can I help you today?
+            <div class="inline-note">
+              <span class="note-icon">⚠</span>
+              <span>HIKA is an AI-augmented tool. Responses are validated by the DataWings CoP. For safety-critical decisions, always consult a specialist.</span>
+            </div>
+          </div>
+          <div class="bubble-meta">09:14 · HIKA</div>
+        </div>
+      </div>
+
+      <div class="msg-row mine">
+        <div class="avatar av-user">AC</div>
+        <div class="msg-body">
+          <div class="bubble">What is the standard definition for "root cause" in flight punctuality reports?</div>
+          <div class="bubble-meta">09:15 · Ana Costa</div>
+        </div>
+      </div>
+
+      <div class="msg-row">
+        <div class="avatar av-hika">HK</div>
+        <div class="msg-body">
+          <div class="bubble">
+            Based on Hi Fly's validated data governance documentation:<br><br>
+            <strong>Root Cause</strong> is defined as <em>"the primary, single-most contributing factor that directly initiated a delay or disruption event, traceable to a specific operational domain — Technical, Ground Handling, ATC, Weather, or Commercial."</em><br><br>
+            Key rules to remember:<br>
+            &nbsp;&nbsp;· Only <strong>one root cause</strong> is assigned per event — the most proximate cause.<br>
+            &nbsp;&nbsp;· Contributing factors are logged separately in the <em>secondary causes</em> field.<br>
+            &nbsp;&nbsp;· IATA delay codes 00–99 map to root cause categories in Annex B of the Ops Manual.<br><br>
+            <em style="font-size:12px;color:var(--ink-soft)">📄 Source: Hi Fly Ops Data Dictionary v2.4 — validated by DataWings CoP, Mar 2026. Also in the Business Glossary.</em>
+            <div class="inline-note">
+              <span class="note-icon">⚠</span>
+              <span>This definition is reviewed quarterly. Flag discrepancies in the Knowledge Curation panel or contact João Cortiçadas (SME).</span>
+            </div>
+          </div>
+          <div class="bubble-meta">09:15 · HIKA</div>
+        </div>
+      </div>
+
+      <div class="msg-row mine">
+        <div class="avatar av-user">AC</div>
+        <div class="msg-body">
+          <div class="bubble">Has anyone dealt with a passenger refusing to deplane during an AOG situation on a charter before?</div>
+          <div class="bubble-meta">09:17 · Ana Costa</div>
+        </div>
+      </div>
+
+      <div class="msg-row">
+        <div class="avatar av-hika">HK</div>
+        <div class="msg-body">
+          <div class="bubble">
+            I found <strong>2 relevant War Stories</strong> in the DataWings knowledge base:<br><br>
+            <strong>📖 WS-041 · Charter AOG, Faro (2023)</strong><br>
+            Senior Purser Rui Baptista documented a case with 14 passengers refusing to exit a grounded A330 during a 6-hour maintenance delay. Resolution involved the Passenger Welfare protocol, refreshments, hotel vouchers, and a calm private conversation with the group leader. Full de-escalation took ~40 minutes.<br><br>
+            <strong>📖 WS-019 · Charter diversion, Málaga (2022)</strong><br>
+            Crew Chief Marta Lopes resolved a similar incident by having the Station Manager board and provide a written commitment on the new departure time.<br><br>
+            <em style="font-size:12.5px;color:var(--ink-soft)">💡 Common theme: transparent communication with a clear timeline is the single most effective de-escalation tool noted in both accounts.</em>
+            <div class="esc-card">
+              <div class="esc-card-title">Need further support?</div>
+              <div class="esc-person">
+                <div class="av-esc">MC</div>
+                <div>
+                  <div class="esc-name">Maria Cetra</div>
+                  <div class="esc-role">CoP Facilitator · DataWings</div>
+                </div>
+                <button class="esc-btn">Message →</button>
+              </div>
+            </div>
+          </div>
+          <div class="bubble-meta">09:17 · HIKA</div>
+        </div>
+      </div>
+
+    </div>
+
+    <div class="input-bar">
+      <div class="input-wrap">
+        <input type="text" placeholder="Ask HIKA about operations, HR, procedures, or past crew experiences…" />
+        <button class="send">➤</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /chat -->
+
+
+<!-- ══ SCREEN 1: CURATION ══ -->
+<div class="screen page-screen" id="s1">
+  <div class="page-header">
+    <div class="page-header-text">
+      <h2>Knowledge Curation</h2>
+      <p>DataWings CoP · SMEs validate all documents HIKA uses to answer queries · Facilitator: Maria Cetra</p>
+    </div>
+    <div class="hdr-actions">
+      <button class="btn btn-ghost">📥 Import Document</button>
+      <button class="btn btn-solid">+ Add Entry</button>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Entries</div>
+        <div class="stat-val">247</div>
+        <div class="stat-sub up">↑ 12 this week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Validated</div>
+        <div class="stat-val">198</div>
+        <div class="stat-sub up">80% of total</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Pending Review</div>
+        <div class="stat-val">34</div>
+        <div class="stat-sub warn">⚠ Needs attention</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Flagged</div>
+        <div class="stat-val">15</div>
+        <div class="stat-sub warn">⚠ Possible errors</div>
+      </div>
+    </div>
+
+    <div class="sec-head">
+      <h3>Pending & Flagged Entries</h3>
+      <span class="pill-count pill-amber">5 urgent</span>
+      <span class="pill-count pill-red">3 flagged</span>
+    </div>
+
+    <div class="data-table-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Entry</th><th>Category</th><th>Submitted by</th><th>Date</th><th>Status</th><th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>
+              <div class="td-title">IATA Delay Code Mapping v3.1</div>
+              <div class="td-sub">Updated mapping for new ATC codes post-EUROCONTROL reform</div>
+            </td>
+            <td><span class="cat-tag cat-ops">Operational</span></td>
+            <td>João Cortiçadas</td>
+            <td>15 Mar 2026</td>
+            <td><span class="status-tag st-pend"><span class="st-dot"></span> Pending</span></td>
+            <td><div class="row-actions"><button class="ra ok">✓ Approve</button><button class="ra">Review</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="td-title">Vacation Booking — New HR Portal Guide</div>
+              <div class="td-sub">Step-by-step instructions for updated Workday integration</div>
+            </td>
+            <td><span class="cat-tag cat-admin">Administrative</span></td>
+            <td>Joana Gomes</td>
+            <td>14 Mar 2026</td>
+            <td><span class="status-tag st-pend"><span class="st-dot"></span> Pending</span></td>
+            <td><div class="row-actions"><button class="ra ok">✓ Approve</button><button class="ra">Review</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="td-title">War Story #WS-061 · Long-haul crew fatigue, Johannesburg</div>
+              <div class="td-sub">Documented by Capt. Ricardo Alves · Flagged for sensitivity review</div>
+            </td>
+            <td><span class="cat-tag cat-war">War Story</span></td>
+            <td>Samuel Lagos</td>
+            <td>12 Mar 2026</td>
+            <td><span class="status-tag st-flag"><span class="st-dot"></span> Flagged</span></td>
+            <td><div class="row-actions"><button class="ra">Review</button><button class="ra del">Reject</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="td-title">Crew Insurance — Flight Crew Coverage Summary 2026</div>
+            </td>
+            <td><span class="cat-tag cat-admin">Administrative</span></td>
+            <td>Mariana Antunes</td>
+            <td>10 Mar 2026</td>
+            <td><span class="status-tag st-ok"><span class="st-dot"></span> Validated</span></td>
+            <td><div class="row-actions"><button class="ra">Edit</button><button class="ra">Archive</button></div></td>
+          </tr>
+          <tr>
+            <td>
+              <div class="td-title">Business Glossary — Flight Delay Definition</div>
+              <div class="td-sub">Standardises the 10 vs 14-minute classification across all departments</div>
+            </td>
+            <td><span class="cat-tag cat-glos">Glossary</span></td>
+            <td>Mariana Biscoito</td>
+            <td>08 Mar 2026</td>
+            <td><span class="status-tag st-ok"><span class="st-dot"></span> Validated</span></td>
+            <td><div class="row-actions"><button class="ra">Edit</button><button class="ra">Archive</button></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div><!-- /curation -->
+
+
+<!-- ══ SCREEN 2: ANALYTICS ══ -->
+<div class="screen page-screen" id="s2">
+  <div class="page-header">
+    <div class="page-header-text">
+      <h2>Weekly Review</h2>
+      <p>Week of 17 Mar 2026 · DataWings CoP · Facilitator: Maria Cetra · Monitoring HIKA usage and knowledge gaps</p>
+    </div>
+    <div class="hdr-actions">
+      <button class="btn btn-ghost">📤 Export Report</button>
+    </div>
+  </div>
+  <div class="page-body">
+    <div class="stat-grid">
+      <div class="stat-card">
+        <div class="stat-label">Total Queries</div>
+        <div class="stat-val">1,284</div>
+        <div class="stat-sub up">↑ 18% vs last week</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Resolved by HIKA</div>
+        <div class="stat-val">87%</div>
+        <div class="stat-sub up">↑ 3pts improvement</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">CoP Escalations</div>
+        <div class="stat-val">167</div>
+        <div class="stat-sub up">↓ 5% reduction</div>
+      </div>
+      <div class="stat-card">
+        <div class="stat-label">Unique Users</div>
+        <div class="stat-val">312</div>
+        <div class="stat-sub">62% of 500 employees</div>
+      </div>
+    </div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Queries by Category</h3>
+        <div class="bars">
+          <div class="bar-row">
+            <div class="bar-lbl">Operational & Analytics</div>
+            <div class="bar-track"><div class="bar-fill bf-ops" style="width:68%">582</div></div>
+            <div class="bar-pct">45%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-lbl">Administrative / HR</div>
+            <div class="bar-track"><div class="bar-fill bf-admin" style="width:42%">386</div></div>
+            <div class="bar-pct">30%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-lbl">War Stories</div>
+            <div class="bar-track"><div class="bar-fill bf-war" style="width:26%">204</div></div>
+            <div class="bar-pct">16%</div>
+          </div>
+          <div class="bar-row">
+            <div class="bar-lbl">Escalated / Unresolved</div>
+            <div class="bar-track"><div class="bar-fill bf-esc" style="width:14%">112</div></div>
+            <div class="bar-pct">9%</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="chart-card">
+        <h3>Engagement by Department</h3>
+        <div class="donut-wrap">
+          <svg width="120" height="120" viewBox="0 0 120 120">
+            <circle cx="60" cy="60" r="44" fill="none" stroke="var(--line)" stroke-width="18"/>
+            <circle cx="60" cy="60" r="44" fill="none" stroke="var(--navy)" stroke-width="18"
+              stroke-dasharray="124.4 276.5" stroke-dashoffset="0" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="44" fill="none" stroke="#22c55e" stroke-width="18"
+              stroke-dasharray="82.9 276.5" stroke-dashoffset="-124.4" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="44" fill="none" stroke="var(--sky)" stroke-width="18"
+              stroke-dasharray="44.2 276.5" stroke-dashoffset="-207.3" transform="rotate(-90 60 60)"/>
+            <circle cx="60" cy="60" r="44" fill="none" stroke="var(--line)" stroke-width="18"
+              stroke-dasharray="24.9 276.5" stroke-dashoffset="-251.5" transform="rotate(-90 60 60)"/>
+            <text x="60" y="56" text-anchor="middle" font-family="'Instrument Serif',serif" font-size="18" fill="var(--navy)">312</text>
+            <text x="60" y="69" text-anchor="middle" font-family="'Plus Jakarta Sans',sans-serif" font-size="9" fill="var(--ink-soft)">users</text>
+          </svg>
+          <div class="legend">
+            <div class="legend-row"><div class="ld" style="background:var(--navy)"></div> Flight Ops (45%)</div>
+            <div class="legend-row"><div class="ld" style="background:#22c55e"></div> Ground & Admin (30%)</div>
+            <div class="legend-row"><div class="ld" style="background:var(--sky)"></div> Cabin Crew (16%)</div>
+            <div class="legend-row"><div class="ld" style="background:var(--line)"></div> Other (9%)</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="sec-head">
+      <h3>Knowledge Gaps — Action Required</h3>
+      <span class="pill-count pill-amber">3 open gaps</span>
+    </div>
+    <div class="gaps-card">
+      <div class="gap-row">
+        <div class="gap-ico">📜</div>
+        <div class="gap-text">
+          <div class="gap-title">EU-OPS Regulation Update — New rest period rules for charter crew (eff. Apr 2026)</div>
+          <div class="gap-desc">Many employees asking; no validated document in HIKA yet. Assigned to João Cortiçadas (SME).</div>
+        </div>
+        <div class="gap-count">89 unanswered</div>
+        <button class="gap-cta">+ Create Entry</button>
+      </div>
+      <div class="gap-row">
+        <div class="gap-ico">🛠️</div>
+        <div class="gap-text">
+          <div class="gap-title">Maintenance Dashboard — New indicator interpretation guide</div>
+          <div class="gap-desc">Dashboard live since Feb; how-to doc not yet validated.</div>
+        </div>
+        <div class="gap-count">54 unanswered</div>
+        <button class="gap-cta">+ Create Entry</button>
+      </div>
+      <div class="gap-row">
+        <div class="gap-ico">💳</div>
+        <div class="gap-text">
+          <div class="gap-title">Expense Reporting — Concur workflow for wet lease crew assignments</div>
+          <div class="gap-desc">Old Workday process still documented; employees confused by updated flow.</div>
+        </div>
+        <div class="gap-count">31 unanswered</div>
+        <button class="gap-cta">+ Create Entry</button>
+      </div>
+    </div>
+  </div>
+</div><!-- /analytics -->
+
+
+<!-- ══ SCREEN 3: BUSINESS GLOSSARY ══ -->
+<div class="screen page-screen" id="s3" style="flex-direction:column;">
+  <div class="page-header">
+    <div class="page-header-text">
+      <h2>Business Glossary</h2>
+      <p>DataWings CoP · Shared definitions aligned with COBIT APO14.02 · Eliminates cross-departmental inconsistencies</p>
+    </div>
+    <div class="hdr-actions">
+      <button class="btn btn-ghost">📤 Export Glossary</button>
+      <button class="btn btn-solid">+ Propose Term</button>
+    </div>
+  </div>
+
+  <div class="glossary-search-bar">
+    <div class="glos-search-wrap">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--ink-soft)" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" placeholder="Search terms, definitions, or source departments…" />
+    </div>
+    <div class="glos-filters">
+      <button class="filter-pill active">All</button>
+      <button class="filter-pill">Operational</button>
+      <button class="filter-pill">Administrative</button>
+      <button class="filter-pill">Analytics</button>
+      <button class="filter-pill">Pending</button>
+    </div>
+  </div>
+
+  <div class="glossary-body">
+
+    <!-- Letter: D -->
+    <div class="letter-group">
+      <span class="letter-anchor">D</span>
+      <div class="glossary-entries">
+
+        <div class="glossary-entry">
+          <div class="entry-left">
+            <div class="entry-term">
+              Delay — Flight Delay
+              <span class="cat-tag cat-ops">Operational</span>
+            </div>
+            <div class="entry-definition">
+              A flight is classified as delayed when it departs <strong>15 minutes or more</strong> after the scheduled departure time (STD), as recorded in the OCC system. This threshold replaces previous departmental variations (10 min in Operations; 14 min in Finance) and serves as the single standard across Hi Fly.
+            </div>
+            <div class="entry-example">
+              Example: Flight HF402 STD 08:00 · ATD 08:16 → classified as <em>delayed</em> (16 min). ATD 08:14 → classified as <em>on-time</em>.
+            </div>
+          </div>
+          <div class="entry-meta">
+            <span class="entry-validated">✓ Validated</span>
+            <div class="entry-source">Validated by João Cortiçadas<br>Mar 2026 · v1.2</div>
+          </div>
+        </div>
+
+        <div class="glossary-entry">
+          <div class="entry-left">
+            <div class="entry-term">
+              DataWings
+              <span class="cat-tag cat-glos" style="background:#f3e8ff;color:#7c3aed;">CoP</span>
+            </div>
+            <div class="entry-definition">
+              Hi Fly's Community of Practice for Data, Analytics, and Artificial Intelligence. DataWings is responsible for curating the knowledge base that HIKA draws upon, validating definitions in this glossary, and fostering data literacy across the organisation's 500 employees.
+            </div>
+          </div>
+          <div class="entry-meta">
+            <span class="entry-validated">✓ Validated</span>
+            <div class="entry-source">CoP Facilitator: Maria Cetra<br>Feb 2026</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Letter: R -->
+    <div class="letter-group">
+      <span class="letter-anchor">R</span>
+      <div class="glossary-entries">
+
+        <div class="glossary-entry">
+          <div class="entry-left">
+            <div class="entry-term">
+              Root Cause (Flight Punctuality)
+              <span class="cat-tag cat-ops">Operational</span>
+            </div>
+            <div class="entry-definition">
+              The primary, single-most contributing factor that directly initiated a delay or disruption event, traceable to a specific operational domain: <strong>Technical, Ground Handling, ATC, Weather,</strong> or <strong>Commercial</strong>. Only one root cause is assigned per event — the most proximate cause. Contributing factors are recorded separately in the secondary causes field.
+            </div>
+            <div class="entry-example">
+              IATA delay codes 00–99 map to root cause categories per Annex B of the Hi Fly Ops Manual v2.4.
+            </div>
+          </div>
+          <div class="entry-meta">
+            <span class="entry-validated">✓ Validated</span>
+            <div class="entry-source">Source: Ops Data Dictionary v2.4<br>João Cortiçadas · Mar 2026</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Letter: W -->
+    <div class="letter-group">
+      <span class="letter-anchor">W</span>
+      <div class="glossary-entries">
+
+        <div class="glossary-entry">
+          <div class="entry-left">
+            <div class="entry-term">
+              War Story
+              <span class="cat-tag cat-war">War Story</span>
+            </div>
+            <div class="entry-definition">
+              An institutional narrative documenting a real operational challenge, decision, or incident experienced by Hi Fly staff. War Stories are captured during the SECI Externalisation phase by the DataWings CoP and indexed by HIKA for retrieval by any employee. They serve as tacit-to-explicit knowledge conversion artefacts.
+            </div>
+            <div class="entry-example">
+              Example: WS-041 documents how Senior Purser Rui Baptista resolved a passenger refusal-to-deplane incident during an AOG in Faro (2023).
+            </div>
+          </div>
+          <div class="entry-meta">
+            <span class="entry-validated">✓ Validated</span>
+            <div class="entry-source">CoP · Socialisation phase<br>Feb 2026</div>
+          </div>
+        </div>
+
+        <div class="glossary-entry">
+          <div class="entry-left">
+            <div class="entry-term">
+              Wet Lease (ACMI)
+              <span class="cat-tag cat-ops">Operational</span>
+            </div>
+            <div class="entry-definition">
+              An arrangement in which Hi Fly provides an aircraft together with crew, maintenance, and insurance (ACMI) to another airline on a temporary basis. The receiving airline typically provides fuel and pays operational costs, while Hi Fly retains operational control of the aircraft and crew.
+            </div>
+          </div>
+          <div class="entry-meta">
+            <span class="entry-pending">⏳ Pending</span>
+            <div class="entry-source">Proposed by Samuel Lagos<br>Awaiting SME sign-off</div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div><!-- /glossary -->
+
+</div><!-- /shell -->
+
+<script>
+function show(idx, el) {
+  document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('on'));
+  el.classList.add('active');
+  document.getElementById('s' + idx).classList.add('on');
+}
+</script>
+</body>
+</html>
